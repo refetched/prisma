@@ -11,12 +11,12 @@ export const getWhereInputFromCursor = <T extends object>(
   const decipher = createDecipher(cipherKey, iv);
   const { args, entity } = decryptObject(data, decipher) as DecryptedCursorData<T>;
 
-  return args.orderBy.reduceRight<Maybe<WhereInput<T>>>((acc, orderByInput) => {
-    const [key, direction] = getEntriesFromObject(orderByInput)[0];
+  return args.orderBy.reduceRight<Maybe<WhereInput<T>>>((acc, input) => {
+    const [key, direction] = getEntriesFromObject(input)[0];
     const isAsc = direction === 'asc';
     const value = entity[key];
     const isNull = value === null;
-    const input = isNull ? { [key]: { not: null } } : { [key]: isAsc ? { gt: value } : { lt: value } };
-    return acc ? { OR: [input, { AND: [{ [key]: { equals: value } }, acc] }] } : input;
+    const whereInput = isNull ? { [key]: { not: null } } : { [key]: isAsc ? { gt: value } : { lt: value } };
+    return acc ? { OR: [whereInput, { AND: [{ [key]: { equals: value } }, acc] }] } : whereInput;
   }, null);
 };
