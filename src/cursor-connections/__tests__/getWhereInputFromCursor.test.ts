@@ -1,37 +1,49 @@
-import RefetchedCoreModule, { Cursor, Entry, decodeObject, getEntriesFromObject } from '@refetched/core';
-import RefetchedCryptographyModule, { createDecipher, decryptObject } from '@refetched/cryptography';
-import { CipherKey, Decipher, randomBytes } from 'crypto';
+import RefetchedCore, {
+  Cursor,
+  Maybe,
+  decodeBuffer,
+  decodeObject,
+  encodeBuffer,
+  encodeObject,
+  getEntriesFromObject,
+} from '@refetched/core';
+import RefetchedCryptography, {
+  createCipher,
+  createDecipher,
+  decryptObject,
+  encryptObject,
+  randomCipherKey,
+  randomIV,
+} from '@refetched/cryptography';
+import { Cipher, CipherKey } from 'crypto';
 import { OrderByInput, getWhereInputFromCursor } from '../..';
-import SpiedFunction = jest.SpiedFunction;
+
+type Example = { id?: Maybe<string>; name?: Maybe<string>; age?: Maybe<number> };
 
 describe('GIVEN the method', () => {
-  let mockCursor: Cursor;
+  let mockArgs: { orderBy: OrderByInput<Example>[] };
+  let mockCipher: Cipher;
   let mockCipherKey: CipherKey;
-
-  let mockIV: Buffer;
+  let mockCursor: Cursor;
   let mockData: string;
-  let mockDecipher: Decipher;
-  let mockEntity: { id?: string | null; name?: string | null; age?: number | null };
-  let mockOrderBy: OrderByInput<typeof mockEntity>[];
-  let mockArgs: { orderBy: typeof mockOrderBy };
-  let decodedCursor: { iv: Buffer; data: string };
-  let decryptedData: { args: typeof mockArgs; entity: typeof mockEntity };
+  let mockEntity: Example;
+  let mockIV: Buffer;
+  let mockOrderBy: OrderByInput<Example>[];
 
-  let decodeObjectSpy: SpiedFunction<typeof decodeObject>;
-  let createDecipherSpy: SpiedFunction<typeof createDecipher>;
-  let decryptObjectSpy: SpiedFunction<typeof decryptObject>;
-  let getEntriesFromObjectSpy: SpiedFunction<typeof getEntriesFromObject>;
+  let createDecipherSpy: jest.SpiedFunction<typeof createDecipher>;
+  let decodeBufferSpy: jest.SpiedFunction<typeof decodeBuffer>;
+  let decodeObjectSpy: jest.SpiedFunction<typeof decodeObject>;
+  let decryptObjectSpy: jest.SpiedFunction<typeof decryptObject>;
+  let getEntriesFromObjectSpy: jest.SpiedFunction<typeof getEntriesFromObject>;
 
   beforeEach(() => {
-    mockCursor = 'mockCursor';
-    mockCipherKey = 'mockCipherKey';
-    mockIV = randomBytes(16);
-    mockData = 'mockData';
-    mockDecipher = {} as Decipher;
-    decodedCursor = { iv: mockIV, data: mockData };
-    decodeObjectSpy = jest.spyOn(RefetchedCoreModule, 'decodeObject').mockReturnValue(decodedCursor);
-    createDecipherSpy = jest.spyOn(RefetchedCryptographyModule, 'createDecipher').mockReturnValue(mockDecipher);
-    getEntriesFromObjectSpy = jest.spyOn(RefetchedCoreModule, 'getEntriesFromObject');
+    mockCipherKey = randomCipherKey();
+    mockIV = randomIV();
+    decodeObjectSpy = jest.spyOn(RefetchedCore, 'decodeObject');
+    decodeBufferSpy = jest.spyOn(RefetchedCore, 'decodeBuffer');
+    createDecipherSpy = jest.spyOn(RefetchedCryptography, 'createDecipher');
+    getEntriesFromObjectSpy = jest.spyOn(RefetchedCore, 'getEntriesFromObject');
+    decryptObjectSpy = jest.spyOn(RefetchedCryptography, 'decryptObject');
   });
 
   describe('WHEN there is < 1 order by arguments', () => {
@@ -39,14 +51,16 @@ describe('GIVEN the method', () => {
       mockOrderBy = [];
       mockArgs = { orderBy: mockOrderBy };
       mockEntity = {};
-      decryptedData = { args: mockArgs, entity: mockEntity };
-      decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+      mockCipher = createCipher(mockCipherKey, mockIV);
+      mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+      mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
     });
 
     test('THEN it should return null', () => {
       const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
 
       expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
+      expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
       expect(createDecipherSpy).toHaveBeenCalledTimes(1);
       expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
       expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(0);
@@ -65,14 +79,16 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity value = null', () => {
         beforeEach(() => {
           mockEntity = { id: null };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
           const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
+          expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
@@ -86,14 +102,16 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity value != null', () => {
         beforeEach(() => {
           mockEntity = { id: 'mockId' };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
           const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
+          expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
@@ -114,14 +132,16 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity value = null', () => {
         beforeEach(() => {
           mockEntity = { id: null };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
           const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
+          expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
@@ -135,14 +155,16 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity value != null', () => {
         beforeEach(() => {
           mockEntity = { id: 'mockId' };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
           const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
+          expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
@@ -165,8 +187,9 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity values = null', () => {
         beforeEach(() => {
           mockEntity = { id: null, name: null, age: null };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
@@ -196,8 +219,9 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity values != null', () => {
         beforeEach(() => {
           mockEntity = { id: 'mockId', name: 'mockName', age: 25 };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
@@ -237,8 +261,9 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity values = null', () => {
         beforeEach(() => {
           mockEntity = { id: null, name: null, age: null };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
@@ -268,8 +293,9 @@ describe('GIVEN the method', () => {
       describe('WHEN the entity values != null', () => {
         beforeEach(() => {
           mockEntity = { id: 'mockId', name: 'mockName', age: 25 };
-          decryptedData = { args: mockArgs, entity: mockEntity };
-          decryptObjectSpy = jest.spyOn(RefetchedCryptographyModule, 'decryptObject').mockReturnValue(decryptedData);
+          mockCipher = createCipher(mockCipherKey, mockIV);
+          mockData = encryptObject({ args: mockArgs, entity: mockEntity }, mockCipher);
+          mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
         });
 
         test('THEN it should return the where input', () => {
