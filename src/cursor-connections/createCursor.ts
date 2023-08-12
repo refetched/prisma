@@ -1,13 +1,13 @@
 import {
-  Cursor,
   encodeBuffer,
   encodeObject,
   getEntriesFromObject,
   getKeysFromObject,
   getObjectFromEntries,
 } from '@refetched/core';
+import { Cursor } from '@refetched/core-types';
 import { createCipher, encryptObject, randomIV } from '@refetched/cryptography';
-import { CreateCursorInput } from '../types/CreateCursorInput';
+import { CreateCursorInput } from '@refetched/prisma-types';
 
 /**
  * Creates a cursor from the connection arguments and the entity.

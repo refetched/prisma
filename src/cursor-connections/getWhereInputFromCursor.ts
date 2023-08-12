@@ -1,7 +1,8 @@
-import { Cursor, Maybe, decodeBuffer, decodeObject, getEntriesFromObject } from '@refetched/core';
+import { decodeBuffer, decodeObject, getEntriesFromObject } from '@refetched/core';
+import { Cursor, Maybe } from '@refetched/core-types';
 import { createDecipher, decryptObject } from '@refetched/cryptography';
+import { DecodedCursor, DecryptedCursorData, WhereInput } from '@refetched/prisma-types';
 import { CipherKey } from 'crypto';
-import { DecodedCursor, DecryptedCursorData, WhereInput } from '..';
 
 /**
  * Returns the where input from the cursor.

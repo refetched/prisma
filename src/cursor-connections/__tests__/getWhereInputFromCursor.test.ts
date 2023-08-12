@@ -1,12 +1,11 @@
 import RefetchedCore, {
-  Cursor,
-  Maybe,
   decodeBuffer,
   decodeObject,
   encodeBuffer,
   encodeObject,
   getEntriesFromObject,
 } from '@refetched/core';
+import { Cursor, Maybe } from '@refetched/core-types';
 import RefetchedCryptography, {
   createCipher,
   createDecipher,
@@ -15,12 +14,13 @@ import RefetchedCryptography, {
   randomCipherKey,
   randomIV,
 } from '@refetched/cryptography';
+import { OrderByInput } from '@refetched/prisma-types';
 import { Cipher, CipherKey } from 'crypto';
-import { OrderByInput, getWhereInputFromCursor } from '../..';
+import { getWhereInputFromCursor } from '../..';
 
 type Example = { id?: Maybe<string>; name?: Maybe<string>; age?: Maybe<number> };
 
-describe('GIVEN the method', () => {
+describe('GIVEN the function', () => {
   let mockArgs: { orderBy: OrderByInput<Example>[] };
   let mockCipher: Cipher;
   let mockCipherKey: CipherKey;
