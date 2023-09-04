@@ -1,7 +1,7 @@
 {
   "name": "@refetched/prisma",
   "description": "",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Riley Conrardy",
   "license": "ISC",
   "main": "dist/index.js",

@@ -16,7 +16,7 @@ import RefetchedCryptography, {
 } from '@refetched/cryptography';
 import { OrderByInput } from '@refetched/prisma-types';
 import { Cipher, CipherKey } from 'crypto';
-import { getWhereInputFromCursor } from '../..';
+import { getPrismaWhereInputFromCursor } from '..';
 
 type Example = { id?: Maybe<string>; name?: Maybe<string>; age?: Maybe<number> };
 
@@ -57,7 +57,7 @@ describe('GIVEN the function', () => {
     });
 
     test('THEN it should return null', () => {
-      const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+      const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
       expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
       expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
@@ -85,7 +85,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
@@ -108,7 +108,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
@@ -138,7 +138,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
@@ -161,7 +161,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(decodeBufferSpy).toHaveBeenCalledTimes(1);
@@ -193,7 +193,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
@@ -225,7 +225,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
@@ -267,7 +267,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);
@@ -299,7 +299,7 @@ describe('GIVEN the function', () => {
         });
 
         test('THEN it should return the where input', () => {
-          const response = getWhereInputFromCursor(mockCursor, mockCipherKey);
+          const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
           expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
           expect(createDecipherSpy).toHaveBeenCalledTimes(1);

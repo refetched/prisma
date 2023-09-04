@@ -1,2 +1,2 @@
 export * from './createCursor';
-export * from './getWhereInputFromCursor';
+export * from './getPrismaWhereInputFromCursor';

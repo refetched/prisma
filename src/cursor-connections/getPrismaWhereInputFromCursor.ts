@@ -5,12 +5,12 @@ import { DecodedCursor, DecryptedCursorData, WhereInput } from '@refetched/prism
 import { CipherKey } from 'crypto';
 
 /**
- * Returns the where input from the cursor.
+ * Returns the Prisma where input from the cursor.
  * @param cursor The cursor to get the where input from.
  * @param cipherKey The cipher key to decrypt the cursor with.
- * @returns The where input.
+ * @returns The Prisma where input.
  */
-export const getWhereInputFromCursor = <T extends object>(
+export const getPrismaWhereInputFromCursor = <T extends object>(
   cursor: Cursor,
   cipherKey: CipherKey,
 ): Maybe<WhereInput<T>> => {
