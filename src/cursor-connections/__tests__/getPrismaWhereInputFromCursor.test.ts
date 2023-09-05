@@ -56,7 +56,7 @@ describe('GIVEN the function', () => {
       mockCursor = encodeObject({ iv: encodeBuffer(mockIV), data: mockData });
     });
 
-    test('THEN it should return null', () => {
+    test('THEN it should return empty', () => {
       const response = getPrismaWhereInputFromCursor(mockCursor, mockCipherKey);
 
       expect(decodeObjectSpy).toHaveBeenCalledTimes(1);
@@ -65,7 +65,7 @@ describe('GIVEN the function', () => {
       expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
       expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(0);
 
-      expect(response).toEqual(null);
+      expect(response).toEqual({});
     });
   });
 
@@ -93,9 +93,7 @@ describe('GIVEN the function', () => {
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
 
-          expect(response).toEqual({
-            id: { not: null },
-          });
+          expect(response).toEqual({ id: { not: null } });
         });
       });
 
@@ -116,9 +114,7 @@ describe('GIVEN the function', () => {
           expect(decryptObjectSpy).toHaveBeenCalledTimes(1);
           expect(getEntriesFromObjectSpy).toHaveBeenCalledTimes(1);
 
-          expect(response).toEqual({
-            id: { gt: 'mockId' },
-          });
+          expect(response).toEqual({ id: { gt: 'mockId' } });
         });
       });
     });
